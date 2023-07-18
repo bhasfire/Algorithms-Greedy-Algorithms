@@ -14,12 +14,39 @@ public class Student {
     private int name;
     private ArrayList<Student> neighbors;
     private ArrayList<Integer> prices;
+    private boolean inMST; // Indicate whether this student is in MST or not.
+    private int costToMST;  // New field
 
     public Student(int x) {
         name = x;
         minCost = Integer.MAX_VALUE;
+        costToMST = Integer.MAX_VALUE;  // Initialize costToMST
         neighbors = new ArrayList<Student>();
         prices = new ArrayList<Integer>();
+        inMST = false; // Initialize inMST as false.
+
+    }
+    
+    public int getCostToMST() {
+        return costToMST;
+    }
+
+    public void setCostToMST(int cost) {
+        this.costToMST = cost;
+    }
+
+    public int getPriceTo(Student s) {
+        int index = this.neighbors.indexOf(s);
+        if (index == -1) {
+            throw new IllegalArgumentException("Student " + s.getName() + " is not a neighbor of " + this.getName());
+        }
+        return this.prices.get(index);
+    }
+    public void setInMST(boolean inMST) {
+        this.inMST = inMST;
+    }
+    public boolean isInMST() {
+        return this.inMST;
     }
 
     public Student getPreviousStudent() {

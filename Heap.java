@@ -112,6 +112,36 @@ public class Heap {
         }
     }
 
+    public void decreaseKey(Student s, int newCost) {
+        // Find the index of the Student in the heap.
+        int index = minHeap.indexOf(s);
+
+        if (index == -1) {
+            throw new IllegalArgumentException("Student not found in heap.");
+        }
+
+        if (index != -1) {
+            int oldCost = s.getminCost();
+            s.setminCost(newCost);
+
+            // If the new cost is less than the old cost, sift up.
+            if (newCost < oldCost) {
+                siftUp(index);
+            }
+        }
+    }
+
+    public boolean remove(Student student) {
+    int index = minHeap.indexOf(student);
+    if (index == -1) {
+        return false; // Student not in the heap, so return false.
+    }
+    
+    delete(index); // Use the delete method that already maintains the heap property.
+    return true;
+}
+
+
     public String toString() {
         String output = "";
         for (int i = 0; i < minHeap.size(); i++) {

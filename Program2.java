@@ -9,6 +9,7 @@
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Program2 {
     private ArrayList<Student> students;    // this is a list of all Students, populated by Driver class
@@ -75,17 +76,62 @@ public class Program2 {
     }
 
 
-
     /**
      * findMinimumClassCost()
      *
      * @return the minimum total cost required to connect (span) each student in the class.
      * Assume the given graph is always connected.
      */
-    public int findMinimumClassCost() {
-        // TODO: implement this function
-        return -1;
+        public int findMinimumClassCost() {
+        // Initialize minCost of all students
+        for (Student student : students) {
+            student.setminCost(Integer.MAX_VALUE);
+        }
+
+        // Set the minCost of the first student to 0
+        students.get(0).setminCost(0);
+
+        // Create a list of all students not yet in the MST
+        ArrayList<Student> notInMST = new ArrayList<Student>(students);
+
+        while (!notInMST.isEmpty()) {
+            // Find the student with the minimum minCost among those not yet in the MST
+            Student u = notInMST.get(0);
+            for (Student student : notInMST) {
+                if (student.getminCost() < u.getminCost()) {
+                    u = student;
+                }
+            }
+
+            u.setInMST(true);  // Add this student to the MST.
+            notInMST.remove(u);  // Remove this student from the list of students not yet in the MST
+
+            System.out.println("Processing Student: " + u.getName() + " with current minCost: " + u.getminCost());
+
+            // Update minCost of the adjacent vertices of the extracted vertex.
+            // Consider only those vertices which are not in the MST yet
+            for (Student v : u.getNeighbors()) {
+                int edgeWeight = u.getPriceTo(v);
+                if (!v.isInMST() && edgeWeight < v.getminCost()) {
+                    System.out.println("Updating minCost for Student: " + v.getName() + " from: " + v.getminCost() + " to: " + edgeWeight);
+                    v.setminCost(edgeWeight);
+                }
+            }
+        }
+
+        // Compute the total cost
+        int totalCost = 0;
+        for (Student student : students) {
+            if (student.getminCost() == Integer.MAX_VALUE) {
+                throw new RuntimeException("Cost to MST was not updated for student " + student.getName());
+            }
+            System.out.println("Final cost to MST for Student: " + student.getName() + " is: " + student.getminCost());
+            totalCost += student.getminCost();
+        }
+
+        return totalCost;
     }
+
 
     //returns edges and prices in a string.
     public String toString() {
