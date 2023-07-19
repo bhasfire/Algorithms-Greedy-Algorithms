@@ -82,39 +82,42 @@ public class Program2 {
      * @return the minimum total cost required to connect (span) each student in the class.
      * Assume the given graph is always connected.
      */
-        public int findMinimumClassCost() {
-        // Initialize minCost of all students
+            public int findMinimumClassCost() {
+        // Create a heap with all students and initialize their keys
+        Heap heap = new Heap();
+        heap.buildHeap(students);
         for (Student student : students) {
             student.setminCost(Integer.MAX_VALUE);
+            student.setCostToMST(Integer.MAX_VALUE);  // Initialize the cost to MST
         }
 
-        // Set the minCost of the first student to 0
+        // Set the key and cost to MST of the first student to 0
         students.get(0).setminCost(0);
+        students.get(0).setCostToMST(0);
 
-        // Create a list of all students not yet in the MST
-        ArrayList<Student> notInMST = new ArrayList<Student>(students);
+        // Add the first student to the heap
+        heap.insertNode(students.get(0));
 
-        while (!notInMST.isEmpty()) {
-            // Find the student with the minimum minCost among those not yet in the MST
-            Student u = notInMST.get(0);
-            for (Student student : notInMST) {
-                if (student.getminCost() < u.getminCost()) {
-                    u = student;
-                }
-            }
-
+        while (!heap.isEmpty()) {
+            // Extract the student with the minimum key
+            Student u = heap.extractMin();
             u.setInMST(true);  // Add this student to the MST.
-            notInMST.remove(u);  // Remove this student from the list of students not yet in the MST
 
             System.out.println("Processing Student: " + u.getName() + " with current minCost: " + u.getminCost());
 
-            // Update minCost of the adjacent vertices of the extracted vertex.
-            // Consider only those vertices which are not in the MST yet
+            // Update key value and parent index of the adjacent vertices of
+            // the extracted vertex. Consider only those vertices which are not in the MST yet
             for (Student v : u.getNeighbors()) {
                 int edgeWeight = u.getPriceTo(v);
                 if (!v.isInMST() && edgeWeight < v.getminCost()) {
                     System.out.println("Updating minCost for Student: " + v.getName() + " from: " + v.getminCost() + " to: " + edgeWeight);
                     v.setminCost(edgeWeight);
+                    v.setCostToMST(edgeWeight);
+                    if (heap.contains(v)) {
+                        heap.remove(v);  // Remove the old node
+                    }
+                    heap.insertNode(v);  // Insert the updated node
+
                 }
             }
         }
@@ -122,15 +125,16 @@ public class Program2 {
         // Compute the total cost
         int totalCost = 0;
         for (Student student : students) {
-            if (student.getminCost() == Integer.MAX_VALUE) {
+            if (student.getCostToMST() == Integer.MAX_VALUE) {
                 throw new RuntimeException("Cost to MST was not updated for student " + student.getName());
             }
-            System.out.println("Final cost to MST for Student: " + student.getName() + " is: " + student.getminCost());
-            totalCost += student.getminCost();
+            System.out.println("Final cost to MST for Student: " + student.getName() + " is: " + student.getCostToMST());
+            totalCost += student.getCostToMST();
         }
 
         return totalCost;
     }
+
 
 
     //returns edges and prices in a string.
